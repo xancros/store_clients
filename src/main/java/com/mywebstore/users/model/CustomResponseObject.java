@@ -1,4 +1,4 @@
-package com.mywebstore.users;
+package com.mywebstore.users.model;
 
 import org.springframework.http.HttpStatus;
 
@@ -6,6 +6,16 @@ public class CustomResponseObject {
 
     private String message;
     private HttpStatus code;
+
+    public CustomResponseObject(){
+        message = "NOT DEFINED";
+        code = HttpStatus.FORBIDDEN;
+    }
+
+    public CustomResponseObject(String message,HttpStatus code){
+        this.message=message;
+        this.code=code;
+    }
 
     public String getMessage() {
         return message;

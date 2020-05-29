@@ -10,15 +10,51 @@ public class UserModel {
     private String userName;
     private int password;
 
-    public UserModel (String name, String lastName, String idCard, String userName, int password){
-        this(name,lastName,null,idCard,userName,password);
+    public String getName() {
+        return name;
     }
-    public UserModel(String name, String lastName, Long phone, String idCard, String userName, int password) {
+
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public long getPhone() {
+        return phone;
+    }
+
+    public void setPhone(long phone) {
         this.phone = phone;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
         this.idCard = idCard;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public int getPassword() {
+        return password;
+    }
+
+    public void setPassword(int password) {
         this.password = password;
     }
 }

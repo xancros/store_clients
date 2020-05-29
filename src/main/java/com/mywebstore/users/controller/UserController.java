@@ -1,10 +1,12 @@
 package com.mywebstore.users.controller;
 
+import com.mywebstore.users.model.CustomResponseObject;
+import com.mywebstore.users.model.UserLogin;
+import com.mywebstore.users.model.UserModel;
 import com.mywebstore.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping(path ="/user")
@@ -13,18 +15,33 @@ public class UserController {
     private UserService userService;
 
 
-    @GetMapping(path ="/all")
-    public int getUsers(){
+    @GetMapping(path = "/all")
+    public int countUsers(){
         return userService.countAllUsers();
     }
 
    @PostMapping(path ="/login")
-    public int executeLogin(@RequestParam("username") String username, @RequestParam("password") String password ){
-        if(this.userService.logIn(username,password)){
-//            response.setStatus(200);
-            return 200;
+    public CustomResponseObject login(@RequestBody UserLogin userLogin){
+        if(this.userService.logIn(userLogin.getUsername(),userLogin.getPassword())){
+            return new CustomResponseObject("OK",HttpStatus.FOUND);
         }
-//            response.setStatus(500);
-            return 500;
+            return new CustomResponseObject("NOT FOUND",HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping(path="/register")
+    public CustomResponseObject register(@RequestBody UserModel userModel){
+        if(this.userService.createUser(userModel)){
+            return new CustomResponseObject("CREATED",HttpStatus.CREATED);
+        }
+            return new CustomResponseObject("ERROR",HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/deleteUser")
+    public CustomResponseObject removeUser(@RequestBody UserModel userModel){
+        if(this.userService.removeUser(userModel)){
+            return new CustomResponseObject("CREATED",HttpStatus.I_AM_A_TEAPOT);
+        }
+        return new CustomResponseObject("ERROR",HttpStatus.BAD_REQUEST);
+    }
+
 }

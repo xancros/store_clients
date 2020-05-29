@@ -8,5 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface UsersRepository extends CrudRepository<User,Long> {
-    public Optional<User> findByUserName(String username);
+     Optional<User> findByUserName(String username);
+
+     Optional<User> findByIdCard(String idCard);
+
+     Optional<User> findByUserNameAndPasswordAndIdCard(String username,int password,String idCard);
 }

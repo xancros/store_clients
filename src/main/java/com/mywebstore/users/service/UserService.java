@@ -1,6 +1,7 @@
 package com.mywebstore.users.service;
 
 import com.mywebstore.users.entity.User;
+import com.mywebstore.users.model.UserModel;
 import com.mywebstore.users.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,23 +28,39 @@ public class UserService {
         return (int) this.userRepository.count();
     }
 
-    /*public User signupUser(User user){
-
+    public Optional<User> findUserByIdCard(String idCard){
+        return this.userRepository.findByIdCard(idCard);
     }
 
-    public User deleteUser(User user){
-
+    public Optional<User> findByUserNameAndPasswordAndIdCard(String username,int password, String idCard){
+        return this.userRepository.findByUserNameAndPasswordAndIdCard(username,password,idCard);
     }
 
+    public boolean createUser(UserModel userModel) {
+        Optional<User> maybeUser = this.findUserByIdCard(userModel.getName());
+        if(maybeUser.isEmpty()){
+            User user = new User();
+            user.setName(userModel.getName());
+            user.setLastName(userModel.getLastName());
+            user.setPassword(userModel.getPassword());
+            user.setPhone(userModel.getPhone());
+            user.setUserName(userModel.getUserName());
+            user.setIdCard(userModel.getIdCard());
+            return this.userRepository.save(user).getId() != 0;
 
-    public Optional<User> findUserByNameSurname(User user){
-
+        }
+        return false;
     }
 
-
-    public User modifyUser(User user){
-
-    }*/
+    public boolean removeUser(UserModel userModel) {
+        Optional<User> maybeUser = this.findByUserNameAndPasswordAndIdCard(userModel.getUserName(),userModel.getPassword(),userModel.getIdCard());
+        if(maybeUser.isPresent()){
+            this.userRepository.delete(maybeUser.get());
+            return true;
+        }
+        else
+            return false;
+    }
 
 
 
