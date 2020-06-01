@@ -5,7 +5,10 @@ import com.mywebstore.users.model.UserModel;
 import com.mywebstore.users.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -62,8 +65,24 @@ public class UserService {
             return false;
     }
 
-
-
-
+    public boolean modifyUser(UserModel userModel){
+        Optional<User> maybeUser = this.findUserByUsername(userModel.getUserName());
+        if(maybeUser.isPresent()){
+            User user = maybeUser.get();
+            user.setName(userModel.getName());
+            user.setLastName(userModel.getLastName());
+            user.setPassword(userModel.getPassword());
+            user.setPhone(userModel.getPhone());
+            user.setUserName(userModel.getUserName());
+            user.setIdCard(userModel.getIdCard());
+            try {
+                this.userRepository.save(user);
+            }catch (Exception ex){
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
 }

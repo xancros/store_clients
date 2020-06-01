@@ -44,4 +44,13 @@ public class UserController {
         return new CustomResponseObject("ERROR",HttpStatus.BAD_REQUEST);
     }
 
+    @PatchMapping("/modify")
+    public CustomResponseObject modifyUser(@RequestBody UserModel userModel){
+        if(this.userService.modifyUser(userModel)){
+            return new CustomResponseObject("CREATED",HttpStatus.ACCEPTED);
+        }
+        return new CustomResponseObject("ERROR",HttpStatus.NOT_MODIFIED);
+    }
+
+
 }

@@ -30,6 +30,7 @@ public class UsersClientsServiceApplicationTests {
 	private final String LOGIN_ENDPOINT = "/login";
 	private final String REGISTER_ENDPOINT = "/register";
 	private final String DELETE_USER_ENDPOINT = "/deleteUser";
+	private final String MODIFY_USER_ENDPOINT = "/modify";
 
 
 	private RestTemplate restTemplate;
@@ -56,6 +57,8 @@ public class UsersClientsServiceApplicationTests {
 	}
 
 	private String removeUserEndpoint(){return userEndpoint()+DELETE_USER_ENDPOINT;}
+
+	private String modifyUserEndpoint(){return userEndpoint()+MODIFY_USER_ENDPOINT;}
 
 	public void executeLogin(String username, String password){
 		// create headers
@@ -108,6 +111,16 @@ public class UsersClientsServiceApplicationTests {
 				.retrieve()
 				.bodyToMono(CustomResponseObject.class)
 				.block();
+	}
+
+	public void executeModifyUser(UserModel userModel){
+		responseMessage=webClient.patch()
+				.uri(modifyUserEndpoint())
+				.bodyValue(userModel)
+				.retrieve()
+				.bodyToMono(CustomResponseObject.class)
+				.block();
+
 	}
 
 	void assertCode(int code){
