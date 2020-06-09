@@ -14,9 +14,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
+    @GetMapping(path="/")
+    public String hello(){
+        return "HELLO!!";
+    }
     @GetMapping(path = "/all")
     public int countUsers(){
+
         return userService.countAllUsers();
     }
 
@@ -44,10 +48,10 @@ public class UserController {
         return new CustomResponseObject("ERROR",HttpStatus.BAD_REQUEST);
     }
 
-    @PatchMapping("/modify")
+    @PostMapping("/modify")
     public CustomResponseObject modifyUser(@RequestBody UserModel userModel){
         if(this.userService.modifyUser(userModel)){
-            return new CustomResponseObject("CREATED",HttpStatus.ACCEPTED);
+            return new CustomResponseObject("CHANGED",HttpStatus.ACCEPTED);
         }
         return new CustomResponseObject("ERROR",HttpStatus.NOT_MODIFIED);
     }

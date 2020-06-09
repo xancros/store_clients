@@ -2,21 +2,16 @@ package com.mywebstore.users;
 
 import com.mywebstore.users.model.CustomResponseObject;
 import com.mywebstore.users.model.UserModel;
-import org.assertj.core.api.AbstractIntegerAssert;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,15 +29,15 @@ public class UsersClientsServiceApplicationTests {
 
 
 	private RestTemplate restTemplate;
-	private WebClient webClient;
+	//private WebClient webClient;
 	protected CustomResponseObject responseMessage;
-	protected Mono<CustomResponseObject> responseObject;
+	//protected Mono<CustomResponseObject> responseObject;
 	@LocalServerPort
 	protected int port;
 
 	public UsersClientsServiceApplicationTests(){
 		restTemplate = new RestTemplate();
-		webClient=WebClient.builder().build();
+		//webClient=WebClient.builder().build();
 		//client = WebClient.create(userEndpoint());
 	}
 
@@ -61,24 +56,12 @@ public class UsersClientsServiceApplicationTests {
 	private String modifyUserEndpoint(){return userEndpoint()+MODIFY_USER_ENDPOINT;}
 
 	public void executeLogin(String username, String password){
-		// create headers
-		HttpHeaders headers = new HttpHeaders();
-		// set `content-type` header
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		// set `accept` header
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-		responseMessage = new CustomResponseObject();
 		Map<String,String> entry = new HashMap<>();
 		entry.put("username",username);
 		entry.put("password",password);
-		//Integer c = restTemplate.postForObject(userLoginEndpoint(),);
-		//ResponseEntity<Integer> response = restTemplate.postForEntity(userLoginEndpoint(),entry,Integer.class);
-		HttpEntity<Map<String, String>> entity = new HttpEntity<>(entry, headers);
-		ResponseEntity<CustomResponseObject> response = restTemplate.postForEntity(userLoginEndpoint(), entity, CustomResponseObject.class);
-		responseMessage.setCode(Objects.requireNonNull(response.getBody()).getCode());
-		responseMessage.setMessage(response.getBody().getMessage());
-
+		ResponseEntity<CustomResponseObject> response = restTemplate.postForEntity(userLoginEndpoint(), entry, CustomResponseObject.class);
+		responseMessage=response.getBody();
 
 	}
 
@@ -89,12 +72,13 @@ public class UsersClientsServiceApplicationTests {
 
 	public void executeCreateUser(UserModel userModel){
 
-		responseMessage=webClient.post()
+		responseMessage=restTemplate.postForEntity(userRegisterEndpoint(),userModel,CustomResponseObject.class).getBody();
+		/*responseMessage=webClient.post()
 				.uri(userRegisterEndpoint())
 				.bodyValue(userModel)
 				.retrieve()
 				.bodyToMono(CustomResponseObject.class)
-				.block();
+				.block();*/
 
 	}
 
@@ -105,21 +89,23 @@ public class UsersClientsServiceApplicationTests {
 				"idCard",idCard
 		);
 
-		responseMessage=webClient.post()
+		responseMessage = restTemplate.postForEntity(removeUserEndpoint(),body,CustomResponseObject.class).getBody();
+		/*responseMessage=webClient.post()
 				.uri(removeUserEndpoint())
 				.bodyValue(body)
 				.retrieve()
 				.bodyToMono(CustomResponseObject.class)
-				.block();
+				.block();*/
 	}
 
 	public void executeModifyUser(UserModel userModel){
-		responseMessage=webClient.patch()
+		responseMessage = restTemplate.postForEntity(modifyUserEndpoint(),userModel,CustomResponseObject.class).getBody();
+		/*responseMessage=webClient.patch()
 				.uri(modifyUserEndpoint())
 				.bodyValue(userModel)
 				.retrieve()
 				.bodyToMono(CustomResponseObject.class)
-				.block();
+				.block();*/
 
 	}
 

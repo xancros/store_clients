@@ -5,10 +5,7 @@ import com.mywebstore.users.model.UserModel;
 import com.mywebstore.users.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -16,7 +13,6 @@ public class UserService {
 
     @Autowired
     private UsersRepository userRepository;
-
 
     public boolean logIn(String userName, String password){
         Optional<User> user = this.findUserByUsername(userName);
@@ -41,6 +37,7 @@ public class UserService {
 
     public boolean createUser(UserModel userModel) {
         Optional<User> maybeUser = this.findUserByIdCard(userModel.getName());
+
         if(maybeUser.isEmpty()){
             User user = new User();
             user.setName(userModel.getName());
@@ -49,8 +46,8 @@ public class UserService {
             user.setPhone(userModel.getPhone());
             user.setUserName(userModel.getUserName());
             user.setIdCard(userModel.getIdCard());
-            return this.userRepository.save(user).getId() != 0;
-
+            this.userRepository.save(user);
+            return true;
         }
         return false;
     }
