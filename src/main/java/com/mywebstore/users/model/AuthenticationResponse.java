@@ -2,7 +2,10 @@ package com.mywebstore.users.model;
 
 public class AuthenticationResponse {
 
-    private final String token;
+    private String token;
+
+    public AuthenticationResponse() {
+    }
 
     public AuthenticationResponse(String token){
         this.token=token;

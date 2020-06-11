@@ -1,15 +1,17 @@
 package com.mywebstore.users;
 
+import com.mywebstore.users.model.AuthenticationResponse;
 import com.mywebstore.users.model.CustomResponseObject;
 import com.mywebstore.users.model.UserModel;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,12 +28,13 @@ public class UsersClientsServiceApplicationTests {
 	private final String REGISTER_ENDPOINT = "/register";
 	private final String DELETE_USER_ENDPOINT = "/deleteUser";
 	private final String MODIFY_USER_ENDPOINT = "/modify";
+	private final String AUTHENTICATE_ENDPOINT = "/authenticate";
 
-
-	private RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 	//private WebClient webClient;
 	protected CustomResponseObject responseMessage;
 	//protected Mono<CustomResponseObject> responseObject;
+	protected ResponseEntity<AuthenticationResponse> responseEntity;
 	@LocalServerPort
 	protected int port;
 
@@ -55,24 +58,53 @@ public class UsersClientsServiceApplicationTests {
 
 	private String modifyUserEndpoint(){return userEndpoint()+MODIFY_USER_ENDPOINT;}
 
-	public void executeLogin(String username, String password){
+	private String authenticateEndpoint(){return SERVER_URL+port+AUTHENTICATE_ENDPOINT;}
+
+	public void executeAuthenticate(String username, String password){
+		Map<String,String> entry = new HashMap<>();
+		entry.put("username",username);
+		entry.put("password",password);
+		try {
+			responseEntity = restTemplate.postForEntity(authenticateEndpoint(), entry, AuthenticationResponse.class);
+		}catch (Exception ex){
+			ex.printStackTrace();
+		}finally {
+			responseEntity.getBody();
+
+		}
+	}
+
+	public HttpHeaders generateAuthenticationHeader(String jwtToken){
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(jwtToken);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		return headers;
+	}
+
+	public void executeLogin(String username, String password,String jwtToken){
 
 		Map<String,String> entry = new HashMap<>();
 		entry.put("username",username);
 		entry.put("password",password);
-		ResponseEntity<CustomResponseObject> response = restTemplate.postForEntity(userLoginEndpoint(), entry, CustomResponseObject.class);
+
+		HttpEntity<Map<String,String>> request = new HttpEntity<>(entry,generateAuthenticationHeader(jwtToken));
+		//ResponseEntity<CustomResponseObject> response = restTemplate.exchange();
+		ResponseEntity<CustomResponseObject> response = restTemplate.postForEntity(userLoginEndpoint(), request, CustomResponseObject.class);
+
 		responseMessage=response.getBody();
 
 	}
 
-	public int getUsers(){
-		Integer numUsers = restTemplate.getForObject(userEndpoint()+"/all",Integer.class);
+	public int getUsers(String jwtToken){
+		HttpEntity<String> request = new HttpEntity<>("entry",generateAuthenticationHeader(jwtToken));
+		Integer numUsers = restTemplate.exchange(userEndpoint()+"/all",HttpMethod.GET,request,Integer.class).getBody();
 		return numUsers!=null?numUsers:0;
 	}
 
-	public void executeCreateUser(UserModel userModel){
-
-		responseMessage=restTemplate.postForEntity(userRegisterEndpoint(),userModel,CustomResponseObject.class).getBody();
+	public void executeCreateUser(UserModel userModel,String jwtToken){
+		HttpEntity<UserModel> request = new HttpEntity<>(userModel,generateAuthenticationHeader(jwtToken));
+		responseMessage=restTemplate.exchange(userRegisterEndpoint(),HttpMethod.POST,request,CustomResponseObject.class).getBody();
 		/*responseMessage=webClient.post()
 				.uri(userRegisterEndpoint())
 				.bodyValue(userModel)
@@ -82,14 +114,14 @@ public class UsersClientsServiceApplicationTests {
 
 	}
 
-	void executeRemoveUser(String username, String password, String idCard){
+	void executeRemoveUser(String username, String password, String idCard,String jwtToken){
 		Map<String,String> body = Map.of(
 				"userName",username,
 				"password",password,
 				"idCard",idCard
 		);
-
-		responseMessage = restTemplate.postForEntity(removeUserEndpoint(),body,CustomResponseObject.class).getBody();
+		HttpEntity<Map<String,String>> request = new HttpEntity<>(body,generateAuthenticationHeader(jwtToken));
+		responseMessage=restTemplate.exchange(removeUserEndpoint(),HttpMethod.POST,request,CustomResponseObject.class).getBody();
 		/*responseMessage=webClient.post()
 				.uri(removeUserEndpoint())
 				.bodyValue(body)
@@ -98,8 +130,9 @@ public class UsersClientsServiceApplicationTests {
 				.block();*/
 	}
 
-	public void executeModifyUser(UserModel userModel){
-		responseMessage = restTemplate.postForEntity(modifyUserEndpoint(),userModel,CustomResponseObject.class).getBody();
+	public void executeModifyUser(UserModel userModel,String jwtToken){
+		HttpEntity<UserModel> request = new HttpEntity<>(userModel,generateAuthenticationHeader(jwtToken));
+		responseMessage=restTemplate.exchange(modifyUserEndpoint(),HttpMethod.POST,request,CustomResponseObject.class).getBody();
 		/*responseMessage=webClient.patch()
 				.uri(modifyUserEndpoint())
 				.bodyValue(userModel)
